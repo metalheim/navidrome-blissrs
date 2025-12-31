@@ -35,7 +35,7 @@ struct LibraryInspector;
 
 impl InitProvider for LibraryInspector {
     fn on_init(&self) -> Result<(), LifecycleError> {
-        info!("bliss-rs plugin initializing...");
+        info!("bliss audio analysis plugin initializing...");
 
         // Get cron expression from config, default to every 24h
         let cron = config::get("cron")
@@ -43,7 +43,7 @@ impl InitProvider for LibraryInspector {
             .flatten()
             .unwrap_or_else(|| "@every 24h".to_string());
 
-        info!("Scheduling bliss-rs audio analysis with cron: {}", cron);
+        info!("Scheduling bliss audio analysis with cron: {}", cron);
 
         // Schedule the recurring task using nd-pdk host scheduler
         match scheduler::schedule_recurring(&cron, "inspect", "library-inspect") {
@@ -51,7 +51,7 @@ impl InitProvider for LibraryInspector {
                 info!("Scheduled inspection task with ID: {}", schedule_id);
             }
             Err(e) => {
-                let error_msg = format!("Failed to schedule bliss-rs audio analysis: {}", e);
+                let error_msg = format!("Failed to schedule bliss audio analysis: {}", e);
                 error!("{}", error_msg);
                 return Err(LifecycleError::new(error_msg));
             }
@@ -60,7 +60,7 @@ impl InitProvider for LibraryInspector {
         // Run an initial inspection
         inspect_libraries();
 
-        info!("Bliss-rs plugin initialized successfully");
+        info!("bliss audio analysis plugin initialized successfully");
         Ok(())
     }
 }
