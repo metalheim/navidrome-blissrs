@@ -1,2 +1,2 @@
-# navidrome-blissrs
+# navidrome-plugin-blissrs
 Navidrome bliss-rs analysis
