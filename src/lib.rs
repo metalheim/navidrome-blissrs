@@ -20,6 +20,7 @@ use nd_pdk::host::{library, kv};
 use bliss-rs; // Add actual path if needed
 use serde_json;
 use std::fs;
+use walkdir::WalkDir;
 
 // Register capabilities using PDK macros
 nd_pdk::register_lifecycle_init!(LibraryInspector);
@@ -108,12 +109,12 @@ fn analyze_and_store_if_missing(file_path: &str) {
 }
 
 fn inspect_libraries() {
-	let libraries = match library::get_all_libraries() {
-		Ok(libs) => libs,
-		Err(e) => {
-			error!("Failed to get libraries: {}", e);
-			return;
-		}
+    let libraries = match library::get_all_libraries() {
+        Ok(libs) => libs,
+        Err(e) => {
+            error!("Failed to get libraries: {}", e);
+            return;
+        }
     };
 
     if libraries.is_empty() {
@@ -122,21 +123,20 @@ fn inspect_libraries() {
     }
 
     info!("Found {} libraries, starting analysis", libraries.len());
-	
+
     for lib in &libraries {
         info!("----------------------------------------");
         info!("Library: {} (ID: {})", lib.name, lib.id);
         info!("  Songs:    {} tracks", lib.total_songs);
-		
+
         if !lib.mount_point.is_empty() {
-            if let Ok(entries) = std::fs::read_dir(&lib.mount_point) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if path.is_file() {
-                        let path_str = path.to_string_lossy();
-                        analyze_and_store_if_missing(&path_str);
-						//TODO: purge k/v data for files that dont exist anymore
-                    }
+            // Recursively iterate all files in the mount point
+            for entry in WalkDir::new(&lib.mount_point).into_iter().filter_map(|e| e.ok()) {
+                let path = entry.path();
+                if path.is_file() {
+                    let path_str = path.to_string_lossy();
+                    analyze_and_store_if_missing(&path_str);
+                    // TODO: purge k/v data for files that don't exist anymore
                 }
             }
         }
