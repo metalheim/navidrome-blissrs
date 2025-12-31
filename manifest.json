@@ -1,5 +1,5 @@
 {
-  "name": "Library Inspector",
+  "name": "Bliss Audio Analysis",
   "author": "Navidrome Team",
   "version": "1.0.0",
   "description": "Periodically logs library details and finds largest files",
