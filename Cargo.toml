@@ -10,7 +10,7 @@ license = "Apache 2.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-nd-pdk = { path = "../../pdk/rust/nd-pdk" }
+nd-pdk = { git = "https://github.com/navidrome/navidrome", branch = "new-plugins", subdir = "plugins/pdk/rust/nd-pdk" }
 extism-pdk = "1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
