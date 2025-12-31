@@ -43,7 +43,7 @@ impl InitProvider for LibraryInspector {
             .flatten()
             .unwrap_or_else(|| "@every 24h".to_string());
 
-        info!("Scheduling library inspection with cron: {}", cron);
+        info!("Scheduling bliss-rs audio analysis with cron: {}", cron);
 
         // Schedule the recurring task using nd-pdk host scheduler
         match scheduler::schedule_recurring(&cron, "inspect", "library-inspect") {
@@ -51,7 +51,7 @@ impl InitProvider for LibraryInspector {
                 info!("Scheduled inspection task with ID: {}", schedule_id);
             }
             Err(e) => {
-                let error_msg = format!("Failed to schedule inspection: {}", e);
+                let error_msg = format!("Failed to schedule bliss-rs audio analysis: {}", e);
                 error!("{}", error_msg);
                 return Err(LifecycleError::new(error_msg));
             }
@@ -60,7 +60,7 @@ impl InitProvider for LibraryInspector {
         // Run an initial inspection
         inspect_libraries();
 
-        info!("Library Inspector plugin initialized successfully");
+        info!("Bliss-rs plugin initialized successfully");
         Ok(())
     }
 }
@@ -84,11 +84,20 @@ impl CallbackProvider for LibraryInspector {
 // Helper Functions
 // ============================================================================
 
-fn analyze_and_store_file(file_path: &str) {
-    // Run bliss analysis
+fn analyze_and_store_if_missing(file_path: &str) {
+    let key = format!("bliss:{}", file_path);
+	
+	//TODO: implement a way to purge data for updated files (or have data expire after x time)
+    // Check if analysis exists
+    if let Ok(Some(_data)) = kv::get(&key) {
+        // Analysis already exists, skip this file
+        info!("Bliss analysis already present for {}, skipping...", file_path);
+        return;
+    }
+
+    // Run bliss analysis if not cached
     match bliss::analyze(file_path) {
         Ok(analysis) => {
-            let key = format!("bliss:{}", file_path); // Use a file path as key
             let value = serde_json::to_vec(&analysis).unwrap();
             if let Err(e) = kv::set(&key, &value) {
                 error!("Failed to store analysis for {}: {}", file_path, e);
@@ -125,7 +134,8 @@ fn inspect_libraries() {
                     let path = entry.path();
                     if path.is_file() {
                         let path_str = path.to_string_lossy();
-                        analyze_and_store_file(&path_str);
+                        analyze_and_store_if_missing(&path_str);
+						//TODO: purge k/v data for files that dont exist anymore
                     }
                 }
             }
