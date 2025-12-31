@@ -19,7 +19,11 @@ use nd_pdk::scheduler::{CallbackProvider, Error as SchedulerError, SchedulerCall
 use nd_pdk::host::{library, kv};
 use bliss-audio;
 use serde_json;
-use std::fs;use walkdir::WalkDir;
+use symphonia::core::io::MediaSourceStream;
+use symphonia::core::codecs::DecoderOptions;
+use symphonia::core::audio::SampleBuffer;
+use symphonia::default::get_probe;
+use std::fs;
 
 // Register capabilities using PDK macros
 nd_pdk::register_lifecycle_init!(LibraryInspector);
@@ -86,17 +90,24 @@ impl CallbackProvider for LibraryInspector {
 
 fn analyze_and_store_if_missing(file_path: &str) {
     let key = format!("bliss:{}", file_path);
-	
-	//TODO: implement a way to purge data for updated files (or have data expire after x time)
+
     // Check if analysis exists
     if let Ok(Some(_data)) = kv::get(&key) {
-        // Analysis already exists, skip this file
         info!("Bliss analysis already present for {}, skipping...", file_path);
         return;
     }
 
-    // Run bliss analysis if not cached
-    match bliss::analyze(file_path) {
+    // Decode file using Symphonia
+    let decoded_samples = match decode_pcm_samples(file_path) {
+        Ok(samples) => samples,
+        Err(e) => {
+            error!("Failed to decode audio for {}: {}", file_path, e);
+            return;
+        }
+    };
+
+    // Perform bliss analysis using decoded samples
+    match bliss::analyze_pcm(&decoded_samples) {
         Ok(analysis) => {
             let value = serde_json::to_vec(&analysis).unwrap();
             if let Err(e) = kv::set(&key, &value) {
@@ -105,6 +116,45 @@ fn analyze_and_store_if_missing(file_path: &str) {
         }
         Err(e) => error!("Bliss analysis failed for {}: {}", file_path, e),
     }
+}
+//instead of ffmpeg depencecy (c-crosscompiled) use the symphonia pure rust decoder
+// PCM decoder helper for most audio formats using Symphonia
+fn decode_pcm_samples(file_path: &str) -> Result<Vec<f32>, String> {
+    let file = File::open(file_path).map_err(|e| format!("Open error: {}", e))?;
+    let mss = MediaSourceStream::new(Box::new(file), Default::default());
+    let probe = get_probe();
+    let probed = probe.format(&Default::default(), mss, &Default::default(), &[])
+        .map_err(|e| format!("Probe error: {:?}", e))?;
+    let format = probed.format;
+    let track = format.default_track().ok_or("No default track found")?;
+    let codec_params = &track.codec_params;
+
+    let mut decoder = symphonia::default::get_codecs()
+        .make(&codec_params, &DecoderOptions::default())
+        .map_err(|e| format!("Decoder error: {:?}", e))?;
+
+    let mut pcm_data: Vec<f32> = Vec::new();
+
+    loop {
+        match format.next_packet() {
+            Ok(packet) => {
+                let decoded = decoder.decode(&packet).map_err(|e| format!("Decode error: {:?}", e))?;
+                let mut buf = SampleBuffer::<f32>::new(decoded.capacity() as u64, *decoded.spec());
+                buf.copy_interleaved_ref(&decoded);
+                pcm_data.extend_from_slice(buf.samples());
+            }
+            Err(symphonia::core::errors::Error::ResetRequired) => {
+                decoder.reset();
+            }
+            Err(symphonia::core::errors::Error::IoError(_)) => {
+                break; // End of stream
+            }
+            Err(e) => {
+                return Err(format!("Packet error: {:?}", e));
+            }
+        }
+    }
+    Ok(pcm_data)
 }
 
 fn process_dir_recursively(dir: &str) {

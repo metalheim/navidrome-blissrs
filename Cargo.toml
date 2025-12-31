@@ -15,3 +15,5 @@ extism-pdk = "1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bliss-audio = "0.11.2"
+bliss-audio-aubio-sys = { version = "0.2.4", features = ["bindgen"] }
+symphonia = { version = "0.5", features = ["mp3", "flac", "wav", "vorbis"] }
