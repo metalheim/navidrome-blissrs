@@ -17,7 +17,7 @@ use nd_pdk::host::{library, scheduler};
 use nd_pdk::lifecycle::{Error as LifecycleError, InitProvider};
 use nd_pdk::scheduler::{CallbackProvider, Error as SchedulerError, SchedulerCallbackRequest};
 use nd_pdk::host::{library, kv};
-use bliss;
+use bliss-audio;
 use serde_json;
 use std::fs;use walkdir::WalkDir;
 

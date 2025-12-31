@@ -14,4 +14,4 @@ nd-pdk = { path = "../../pdk/rust/nd-pdk" }
 extism-pdk = "1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-walkdir = "2"
+bliss-audio = "0.11.2"
