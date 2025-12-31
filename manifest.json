@@ -11,6 +11,10 @@
     },
     "scheduler": {
       "reason": "To schedule periodic library inspections"
+    },
+	"kvstore": {
+      "reason": "Store analysis data",
+      "maxSize": "100MB"
     }
   }
 }
