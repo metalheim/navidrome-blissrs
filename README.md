@@ -7,7 +7,11 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 ## Features
 
 ## Requirements
-- Rust toolchain with wasm32-wasip1 target
+- Rust toolchain with wasm32-wasip1-threads target
+```bash
+# Install the WASM target if you haven't already
+rustup target add wasm32-wasip1-threads
+```
 - C Wasi SDK to cross-compile aubio https://github.com/aubio/aubio (or use libaubio.a from here)
 ```bash
 # below is for systems using debian package manager, other systems may vary.
@@ -44,9 +48,6 @@ export AR=/opt/wasi-sdk/bin/ar
 export CFLAGS="--sysroot=/opt/wasi-sdk/share/wasi-sysroot"
 export LIBRARY_PATH="/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src":$LIBRARY_PATH
 export RUSTFLAGS="-L native=/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src"
-
-# Install the WASM target if you haven't already
-rustup target add wasm32-wasip1
 
 # Build the plugin (this calls cargo build and packages the wasm file+manifest into an ndp file
 ./build-ndp.sh
