@@ -31,14 +31,17 @@ EOF
 mkdir build-wasi && cd build-wasi
 cmake -DCMAKE_TOOLCHAIN_FILE=../wasi.toolchain.cmake ..   -DBUILD_SHARED_LIBS=OFF   -Denable-tests=OFF   -Denable-examples=OFF   -Denable-avcodec=OFF   -Denable-sndfile=OFF   -Denable-samplerate=OFF   -Denable-rubberband=OFF   -Denable-fftw3=OFF   -Denable-vorbis=OFF   -Denable-flac=OFF
 make
-export LIBRARY_PATH="/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src"
+
+export CC=/opt/wasi-sdk/bin/clang
+export AR=/opt/wasi-sdk/bin/ar
+export CFLAGS="--sysroot=/opt/wasi-sdk/share/wasi-sysroot"
+export LIBRARY_PATH="/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src":$LIBRARY_PATH
+export RUSTFLAGS="-L native=/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src"
 
 # Install the WASM target if you haven't already
 rustup target add wasm32-wasip1
 
-# Build the plugin
-cargo build --target wasm32-wasip1 --release
+# Build the plugin (this calls cargo build and packages the wasm file+manifest into an ndp file
+./build-ndp.sh
 
-# Package as .ndp
-zip -j library-inspector.ndp manifest.json target/wasm32-wasip1/release/library_inspector.wasm
 ```

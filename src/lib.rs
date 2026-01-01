@@ -1,17 +1,3 @@
-//! Library Inspector Plugin for Navidrome
-//!
-//! This plugin demonstrates how to use the nd-pdk crate for accessing Navidrome
-//! host services and implementing capabilities in Rust. It periodically logs details
-//! about all music libraries and finds the largest file in the root of each library.
-//!
-//! ## Configuration
-//!
-//! Set the `cron` config key to customize the schedule (default: "@every 1m"):
-//! ```toml
-//! [PluginConfig.library-inspector]
-//! cron = "@every 5m"
-//! ```
-
 use extism_pdk::*;
 use nd_pdk::host::{library, scheduler, kvstore};
 use nd_pdk::lifecycle::{Error as LifecycleError, InitProvider};
@@ -92,45 +78,64 @@ fn analyze_and_store_if_missing(file_path: &str) {
     let key = format!("bliss:{}", file_path);
 
     // Check if analysis exists
-	if let Ok((data, _flag)) = kvstore::get(&key) {
-		let preview = match std::str::from_utf8(&data) {
-			Ok(s) => &s[..s.len().min(20)],
-			Err(_) => &hex::encode(&data)[..20], // hex, always safe
-		};
-		info!(
-			"Bliss analysis already present for {}, skipping... First 20 chars: {}",
-			file_path, preview
-		);
-		return;
+	match kvstore::get(&key) {
+		Ok((data, true)) => {
+			let preview = match std::str::from_utf8(&data) {
+				Ok(s) => &s[..s.len().min(20)],
+				Err(_) => &hex::encode(&data)[..20], // hex, always safe
+			};
+			info!(
+				"Bliss analysis already present for {}, skipping... First 20 chars: {}",
+				file_path, preview
+			);
+			return;
+		}
+		Ok((_, false)) | Err(_) => { /* Key not found, fall through to analyze */ }
 	}
 
     let decoded_samples = match decode_pcm_samples(file_path) {
-		Ok(samples) => samples,
+		Ok(samples) => {
+			info!("    Was able to decode file {}: {} samples", file_path, samples.len());
+			samples
+		},
 		Err(e) => {
 			error!("Failed to decode audio for {}: {}", file_path, e);
 			return;
 		}
 	};
 
-	if decoded_samples.len() == 0 {
-		error!(
-			"Invalid analysis input for {}: no_samples={}",
-			file_path, decoded_samples.len()
-		);
+	if decoded_samples.is_empty() {
+		error!("    PCM sample count for {}: {}", file_path, decoded_samples.len());
 		return;
 	}
-
-	match Song::analyze(&decoded_samples) {
-		Ok(analysis) => {
-			let value = serde_json::to_vec(&analysis).unwrap();
-			if let Err(e) = kvstore::set(&key, value) {
-				error!("    Failed to store analysis for {}: {}", file_path, e);
+	
+	let analyze_result = std::panic::catch_unwind(|| Song::analyze(&decoded_samples));
+	match analyze_result {
+		Ok(song_result) => match song_result {
+			Ok(analysis) => {
+				match serde_json::to_vec(&analysis) {
+					Ok(value) => {
+						if let Err(e) = kvstore::set(&key, value) {
+							error!("    Failed to store analysis for {}: {}", file_path, e);
+						}
+					}
+					Err(e) => {
+						error!(
+							"    Failed to serialize analysis for {}: {:?} (type: {})",
+							file_path, e, std::any::type_name::<Song>()
+						);
+					}
+				}
 			}
-		}
-		Err(e) => {
-			error!("    Bliss analysis failed for {}: {}", file_path, e);
+			Err(e) => {
+				error!("    Bliss analysis failed for {}: {}", file_path, e);
+			}
+		},
+		Err(_) => {
+			error!("    Song::analyze panicked on file: {}", file_path);
 		}
 	}
+	info!("    Song::analyze did not panic for {}", file_path);
 }
 
 //instead of ffmpeg depencecy (c-crosscompiled) use the symphonia pure rust decoder
