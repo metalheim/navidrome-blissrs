@@ -8,7 +8,7 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 
 ## Requirements
 - Rust toolchain with wasm32-wasip1 target
-- cross-compiled aubio https://github.com/aubio/aubio
+- C Wasi SDK to cross-compile aubio https://github.com/aubio/aubio (or use libaubio.a from here)
 - Navidrome with plugins enabled
 
 ## Building
