@@ -1,2 +1,44 @@
-# navidrome-plugin-blissrs
-Navidrome bliss-rs analysis
+# Bliss-rs Audio Analysis plugin
+
+A Navidrome plugin written in Rust that does performs analysis with bliss-rs. 
+It periodically (default 24h) analyzes audio files about in all configured music libraries stores analysis data in it's database.
+Files that have been analyzed previously are skipped (no way to force a re-analysis for now).
+
+## Features
+
+## Requirements
+- Rust toolchain with wasm32-wasip1 target
+- cross-compiled aubio https://github.com/aubio/aubio
+- Navidrome with plugins enabled
+
+## Building
+
+```
+# Install C Wasi SDK
+# Compile aubio
+git clone https://github.com/aubio/aubio
+cd aubio
+cat > wasi.toolchain.cmake << EOF
+set(CMAKE_SYSTEM_NAME WASI)
+set(CMAKE_SYSTEM_VERSION 1)
+set(CMAKE_C_COMPILER "/opt/wasi-sdk/bin/clang")
+set(CMAKE_AR "/opt/wasi-sdk/bin/llvm-ar")
+set(CMAKE_RANLIB "/opt/wasi-sdk/bin/llvm-ranlib")
+set(CMAKE_SYSROOT "/opt/wasi-sdk/share/wasi-sysroot")
+set(CMAKE_C_FLAGS "--sysroot=/opt/wasi-sdk/share/wasi-sysroot" CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS "--sysroot=/opt/wasi-sdk/share/wasi-sysroot" CACHE STRING "" FORCE)
+EOF
+mkdir build-wasi && cd build-wasi
+cmake -DCMAKE_TOOLCHAIN_FILE=../wasi.toolchain.cmake ..   -DBUILD_SHARED_LIBS=OFF   -Denable-tests=OFF   -Denable-examples=OFF   -Denable-avcodec=OFF   -Denable-sndfile=OFF   -Denable-samplerate=OFF   -Denable-rubberband=OFF   -Denable-fftw3=OFF   -Denable-vorbis=OFF   -Denable-flac=OFF
+make
+export LIBRARY_PATH="/your/full/path/to/navidrome-blissrs/aubio/build-wasi/src"
+
+# Install the WASM target if you haven't already
+rustup target add wasm32-wasip1
+
+# Build the plugin
+cargo build --target wasm32-wasip1 --release
+
+# Package as .ndp
+zip -j library-inspector.ndp manifest.json target/wasm32-wasip1/release/library_inspector.wasm
+```

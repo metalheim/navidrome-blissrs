@@ -1,9 +1,9 @@
 {
   "name": "Bliss Audio Analysis",
-  "author": "Navidrome Team",
-  "version": "1.0.0",
-  "description": "Periodically logs library details and finds largest files",
-  "website": "https://github.com/navidrome/navidrome/tree/master/plugins/examples/library-inspector",
+  "author": "Stephan Wahlen",
+  "version": "0.0.1",
+  "description": "periodically analyzes audio files about in all configured music libraries stores analysis data in it's database.",
+  "website": "https://github.com/metalheim/navidrome-blissrs",
   "permissions": {
     "library": {
       "reason": "To read library metadata and scan directories for file sizes",

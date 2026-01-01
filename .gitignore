@@ -1,2 +1,5 @@
 target
+.git
+.cargo
 Cargo.lock
+aubio
