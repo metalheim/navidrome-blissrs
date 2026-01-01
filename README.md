@@ -1,7 +1,7 @@
 > [!WARNING]  
-> This plugin compiles and *should* run, but it requires WASI threads (basically multi-threaded wasm)
-> Wazero has only experimental support for wasi-threads and extism does not support it yet
-> as a result, Navidrome cannot execute the plugin right now. I don't know how to fix this unless extism adds support for multi-thread upstream
+> This plugin compiles and *should* run, but it requires WASI threads (basically multi-threaded wasm). 
+> Wazero has only experimental support for wasi-threads and extism does not support it yet. 
+> As a result, Navidrome cannot execute the plugin right now. I don't know how to fix this unless extism adds support for multi-thread upstream
 
 # Bliss-rs Audio Analysis plugin
 
