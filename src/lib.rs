@@ -75,10 +75,8 @@ impl CallbackProvider for LibraryInspector {
 // ============================================================================
 
 fn analyze_and_store_if_missing(file_path: &str) {
-    let key = format!("bliss:{}", file_path);
-
     // Check if analysis exists
-	match kvstore::get(&key) {
+	match kvstore::get(&file_path) {
 		Ok((data, true)) => {
 			let preview = match std::str::from_utf8(&data) {
 				Ok(s) => &s[..s.len().min(20)],
@@ -99,7 +97,7 @@ fn analyze_and_store_if_missing(file_path: &str) {
 			samples
 		},
 		Err(e) => {
-			error!("Failed to decode audio for {}: {}", file_path, e);
+			error!("    Failed to decode audio for {}: {}", file_path, e);
 			return;
 		}
 	};
@@ -115,7 +113,7 @@ fn analyze_and_store_if_missing(file_path: &str) {
 			Ok(analysis) => {
 				match serde_json::to_vec(&analysis) {
 					Ok(value) => {
-						if let Err(e) = kvstore::set(&key, value) {
+						if let Err(e) = kvstore::set(&file_path, value) {
 							error!("    Failed to store analysis for {}: {}", file_path, e);
 						}
 					}
