@@ -151,12 +151,12 @@ fn decode_pcm_samples(file_path: &str) -> Result<Vec<f32>, String> {
         Err(e) => return Err(format!("    Symphonia error: {}", e)),
     };
     let mut format = probed.format;
-    let track = format.default_track().ok_or("No default track found")?;
+    let track = format.default_track().ok_or("    No default track found")?;
     let codec_params = &track.codec_params;
 
     let mut decoder = symphonia::default::get_codecs()
         .make(codec_params, &DecoderOptions::default())
-        .map_err(|e| format!("Decoder error: {:?}", e))?;
+        .map_err(|e| format!("    Decoder error: {:?}", e))?;
 
     let mut pcm_data: Vec<f32> = Vec::new();
 
@@ -175,7 +175,7 @@ fn decode_pcm_samples(file_path: &str) -> Result<Vec<f32>, String> {
                 break; // End of stream
             }
             Err(e) => {
-                return Err(format!("Packet error: {:?}", e));
+                return Err(format!("    Packet error: {:?}", e));
             }
         }
     }
