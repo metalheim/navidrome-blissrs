@@ -13,7 +13,7 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 
 ## Building
 
-```
+```bash
 git clone https://github.com/metalheim/navidrome-blissrs
 cd navidrome-blissrs
 # Install C Wasi SDK (below is for systems using debian package manager, other systems may vary.
