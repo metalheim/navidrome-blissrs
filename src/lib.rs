@@ -28,7 +28,7 @@ impl InitProvider for LibraryInspector {
         info!("bliss audio analysis plugin initializing...");
 
         // Get cron expression from config, default to every 24h
-        let cron = config::get("cron")
+        let cron = config::get("schedule")
             .ok()
             .flatten()
             .unwrap_or_else(|| "@every 24h".to_string());
@@ -189,11 +189,12 @@ fn process_dir_recursively(dir: &str, counter: &mut usize, limit: usize) {
             if path.is_dir() {
                 process_dir_recursively(&path.to_string_lossy(), counter, limit);
             } else if path.is_file() {
-                if *counter < limit {
+                if *counter < limit || limit==0 {
                     *counter += 1;
                     println!("    Analyzing file {}: {}", *counter, path.display());
                     analyze_and_store_if_missing(&path.to_string_lossy());
                 } else {
+					info!("    File limit of your config reach: {}", limit);
                     return;
                 }
             }
@@ -202,6 +203,13 @@ fn process_dir_recursively(dir: &str, counter: &mut usize, limit: usize) {
 }
 
 fn inspect_libraries() {
+	let file_limit = config::get("file_limit")
+		.ok()
+		.flatten()
+		.filter(|s| !s.is_empty())
+		.and_then(|s| s.parse::<usize>().ok())
+		.unwrap_or(0);
+	
 	let libraries = match library::get_all_libraries() {
 		Ok(libs) => libs,
 		Err(e) => {
@@ -223,10 +231,8 @@ fn inspect_libraries() {
         info!("  Songs:    {} tracks", lib.total_songs);
 		
         if !lib.mount_point.is_empty() {
-			
 			let mut counter = 0;
-			let limit = 10; // TODO: make this a config item 
-            process_dir_recursively(&lib.mount_point, &mut counter, limit);
+            process_dir_recursively(&lib.mount_point, &mut counter, file_limit);
         }
     }
 }

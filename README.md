@@ -19,7 +19,7 @@ Configure in the Navidrome UI (Settings → Plugins → crypto-ticker):
 | Key        | Description                                                              | Default   |
 |------------|--------------------------------------------------------------------------|-----------|
 |`schedule`  | When the plugin runs the analysis. Don't set frequency too low           |   `@24h`  |
-|`file_limit`| Limit plugin to only analyze X files per-library per-run (-1 = disabled) |    -1     |
+|`file_limit`| Limit plugin to only analyze X files per-library per-run (0 = disabled)  |       0   |
 
 
 ## Requirements
