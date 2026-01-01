@@ -222,17 +222,32 @@ fn inspect_libraries() {
         info!("No libraries configured");
         return;
     }
+	
+	
+	// Get library ids from config, scan all by default
+	let ignored_libraries: Vec<i32> = config::get("ignored_libraries")
+    .ok()
+    .flatten()
+    .map(|s| {
+        s.split(',')
+            .filter_map(|id| id.trim().parse::<i32>().ok())
+            .collect()
+    })
+    .unwrap_or_default();
 
     info!("Found {} libraries, starting analysis", libraries.len());
 	
     for lib in &libraries {
         info!("----------------------------------------");
         info!("Library: {} (ID: {})", lib.name, lib.id);
-        info!("  Songs:    {} tracks", lib.total_songs);
-		
-        if !lib.mount_point.is_empty() {
-			let mut counter = 0;
-            process_dir_recursively(&lib.mount_point, &mut counter, file_limit);
-        }
+		if ignored_libraries.contains(&lib.id) {
+			info!("  SKIPPED (as per your configuration)");
+		}else{
+			info!("  Songs:    {} tracks", lib.total_songs);
+			if !lib.mount_point.is_empty() {
+				let mut counter = 0;
+				process_dir_recursively(&lib.mount_point, &mut counter, file_limit);
+			}
+		}
     }
 }
