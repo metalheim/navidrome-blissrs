@@ -17,3 +17,4 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bliss-audio = { version = "0.11.2", default-features = false, features = ["serde", "aubio-static", "symphonia-all", "update-aubio-bindings"] }
 symphonia = { version = "0.5", features = ["mp3", "flac", "wav", "vorbis"] }
+hex = "0.4"

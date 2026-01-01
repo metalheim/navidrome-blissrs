@@ -92,12 +92,17 @@ fn analyze_and_store_if_missing(file_path: &str) {
     let key = format!("bliss:{}", file_path);
 
     // Check if analysis exists
-	/*
-    if let Ok((_data, _flag)) = kvstore::get(&key) {
-        info!("      Bliss analysis already present for {}, skipping...", file_path);
-        return;
-    }
-	*/
+	if let Ok((data, _flag)) = kvstore::get(&key) {
+		let preview = match std::str::from_utf8(&data) {
+			Ok(s) => &s[..s.len().min(20)],
+			Err(_) => &hex::encode(&data)[..20], // hex, always safe
+		};
+		info!(
+			"Bliss analysis already present for {}, skipping... First 20 chars: {}",
+			file_path, preview
+		);
+		return;
+	}
 
     let decoded_samples = match decode_pcm_samples(file_path) {
 		Ok(samples) => samples,
