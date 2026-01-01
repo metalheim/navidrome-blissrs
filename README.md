@@ -9,6 +9,11 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 ## Requirements
 - Rust toolchain with wasm32-wasip1 target
 - C Wasi SDK to cross-compile aubio https://github.com/aubio/aubio (or use libaubio.a from here)
+```bash
+# below is for systems using debian package manager, other systems may vary.
+wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-29/wasi-sdk-29.0-arm64-linux.deb
+dpgk -i ./wasi-sdk-29.0-arm64-linux.deb
+```
 - Navidrome with plugins enabled
 
 ## Building
@@ -16,9 +21,7 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 ```bash
 git clone https://github.com/metalheim/navidrome-blissrs
 cd navidrome-blissrs
-# Install C Wasi SDK (below is for systems using debian package manager, other systems may vary.
-wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-29/wasi-sdk-29.0-arm64-linux.deb
-dpgk -i ./wasi-sdk-29.0-arm64-linux.deb
+
 # Compile aubio
 git clone https://github.com/aubio/aubio
 cd aubio
