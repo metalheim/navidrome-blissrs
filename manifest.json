@@ -4,6 +4,11 @@
   "version": "0.0.1",
   "description": "periodically analyzes audio files about in all configured music libraries stores analysis data in it's database.",
   "website": "https://github.com/metalheim/navidrome-blissrs",
+  "experimental": {
+    "threads": {
+      "reason": "Required for concurrent audio processing"
+    }
+  },
   "permissions": {
     "config": {
       "reason": "To set schedule and limit number of processed files at a time"
