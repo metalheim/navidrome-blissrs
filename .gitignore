@@ -1,6 +1,6 @@
 target
 .git
-.cargo
+.cargo/
 Cargo.lock
 aubio
 plugin.wasm
