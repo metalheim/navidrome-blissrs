@@ -11,6 +11,17 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 
 ## Features
 
+
+## Configuration
+
+Configure in the Navidrome UI (Settings → Plugins → crypto-ticker):
+
+| Key        | Description                                                              | Default   |
+|------------|--------------------------------------------------------------------------|-----------|
+|`schedule`  | When the plugin runs the analysis. Don't set frequency too low           |   `@24h`  |
+|`file_limit`| Limit plugin to only analyze X files per-library per-run (-1 = disabled) |    -1     |
+
+
 ## Requirements
 - Rust toolchain with wasm32-wasip1-threads target
 ```bash
