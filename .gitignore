@@ -3,3 +3,4 @@ target
 .cargo
 Cargo.lock
 aubio
+plugin.wasm
