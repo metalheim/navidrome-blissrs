@@ -14,7 +14,7 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 
 ## Configuration
 
-Configure in the Navidrome UI (Settings → Plugins → crypto-ticker):
+Configure in the Navidrome UI (Settings → Plugins → navidrome-blissrs):
 
 | Key        | Description                                                              | Default   |
 |------------|--------------------------------------------------------------------------|-----------|
