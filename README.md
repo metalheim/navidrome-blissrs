@@ -14,7 +14,11 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 ## Building
 
 ```
-# Install C Wasi SDK
+git clone https://github.com/metalheim/navidrome-blissrs
+cd navidrome-blissrs
+# Install C Wasi SDK (below is for systems using debian package manager, other systems may vary.
+wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-29/wasi-sdk-29.0-arm64-linux.deb
+dpgk -i ./wasi-sdk-29.0-arm64-linux.deb
 # Compile aubio
 git clone https://github.com/aubio/aubio
 cd aubio
