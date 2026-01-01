@@ -19,8 +19,8 @@ use nd_pdk::scheduler::{CallbackProvider, Error as SchedulerError, SchedulerCall
 use bliss_audio::Song;
 use serde_json;
 use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::MetadataOptions;
 use symphonia::core::codecs::DecoderOptions;
+use symphonia::core::meta::MetadataOptions; 
 use symphonia::core::audio::{SampleBuffer};
 use symphonia::default::{get_probe};
 use std::fs::File;
@@ -99,14 +99,21 @@ fn analyze_and_store_if_missing(file_path: &str) {
     }
 	*/
 
-    // Decode file using Symphonia
-    let (decoded_samples, _) = match decode_pcm_samples(file_path) {
-        Ok((samples, sr)) => (samples, sr),
-        Err(e) => {
-            error!("Failed to decode audio for {}: {}", file_path, e);
-            return;
-        }
-    };
+    let decoded_samples = match decode_pcm_samples(file_path) {
+		Ok(samples) => samples,
+		Err(e) => {
+			error!("Failed to decode audio for {}: {}", file_path, e);
+			return;
+		}
+	};
+
+	if decoded_samples.len() == 0 {
+		error!(
+			"Invalid analysis input for {}: no_samples={}",
+			file_path, decoded_samples.len()
+		);
+		return;
+	}
 
 	match Song::analyze(&decoded_samples) {
 		Ok(analysis) => {
@@ -116,7 +123,6 @@ fn analyze_and_store_if_missing(file_path: &str) {
 			}
 		}
 		Err(e) => {
-			// You can store error as a string, or just log it
 			error!("    Bliss analysis failed for {}: {}", file_path, e);
 		}
 	}
@@ -124,7 +130,7 @@ fn analyze_and_store_if_missing(file_path: &str) {
 
 //instead of ffmpeg depencecy (c-crosscompiled) use the symphonia pure rust decoder
 // PCM decoder helper for most audio formats using Symphonia
-fn decode_pcm_samples(file_path: &str) -> Result<(Vec<f32>, u32), String> {
+fn decode_pcm_samples(file_path: &str) -> Result<Vec<f32>, String> {
     let file = File::open(file_path).map_err(|e| format!("Open error: {}", e))?;
     let mss = MediaSourceStream::new(Box::new(file), Default::default());
     let probe = get_probe();
@@ -137,11 +143,6 @@ fn decode_pcm_samples(file_path: &str) -> Result<(Vec<f32>, u32), String> {
     let mut format = probed.format;
     let track = format.default_track().ok_or("No default track found")?;
     let codec_params = &track.codec_params;
-
-    // Get sample rate from track info
-    let sample_rate = codec_params
-        .sample_rate
-        .ok_or("      Sample rate not found in track metadata")?;
 
     let mut decoder = symphonia::default::get_codecs()
         .make(codec_params, &DecoderOptions::default())
@@ -168,7 +169,7 @@ fn decode_pcm_samples(file_path: &str) -> Result<(Vec<f32>, u32), String> {
             }
         }
     }
-    Ok((pcm_data, sample_rate))
+    Ok(pcm_data)
 }
 
 fn process_dir_recursively(dir: &str, counter: &mut usize, limit: usize) {
