@@ -1,3 +1,4 @@
+pub use wasm_bindgen_rayon::init_thread_pool;
 use extism_pdk::*;
 use nd_pdk::host::{library, scheduler, kvstore};
 use nd_pdk::lifecycle::{Error as LifecycleError, InitProvider};
