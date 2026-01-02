@@ -14,14 +14,14 @@
       "reason": "To set schedule and limit number of processed files at a time"
     },
     "library": {
-      "reason": "To read library metadata and scan directories for file sizes",
+      "reason": "To read library metadata and read music files for analysis",
       "filesystem": true
     },
     "scheduler": {
-      "reason": "To schedule periodic library inspections"
+      "reason": "To schedule periodic library analysis"
     },
 	"kvstore": {
-      "reason": "Store analysis data",
+      "reason": "To store analysis data",
       "maxSize": "100MB"
     }
   }
