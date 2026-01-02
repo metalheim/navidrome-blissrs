@@ -1,7 +1,7 @@
 [toolchain]
-channel = "nightly-2025-12-15"
-components = ["rust-src"]
-targets = ["wasm32-wasip1-threads", "wasm32-unknown-unknown"]
+channel = 		"nightly-2025-12-15"
+components =	["rust-src"]
+targets =		["wasm32-wasip1-threads"]
 
 [target.wasm32-wasip1-threads]
 rustflags = [
