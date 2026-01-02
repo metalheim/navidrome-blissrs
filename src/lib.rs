@@ -31,7 +31,7 @@ impl InitProvider for LibraryInspector {
         let cron = config::get("schedule")
             .ok()
             .flatten()
-            .unwrap_or_else(|| "@every 24h".to_string());
+            .unwrap_or_else(|| "@every 10m".to_string()); //TODO: avoid in-line magic numbers
 
         info!("Scheduling bliss audio analysis with cron: {}", cron);
 
@@ -206,7 +206,7 @@ fn inspect_libraries() {
 		.flatten()
 		.filter(|s| !s.is_empty())
 		.and_then(|s| s.parse::<usize>().ok())
-		.unwrap_or(0);
+		.unwrap_or(100); //TODO: avoid in-line magic numbers
 	
 	let libraries = match library::get_all_libraries() {
 		Ok(libs) => libs,

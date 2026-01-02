@@ -1,7 +1,7 @@
 > [!WARNING]  
 > This plugin compiles and *should* run, but it requires WASI threads (basically multi-threaded wasm). 
-> Wazero has only experimental support for wasi-threads 
-> As a result, Navidrome cannot execute the plugin right now. WIP
+> Wazero has only experimental support for wasi-threads.
+> As a result, plugin crashes right now with error `instantiating module: module[env] not instantiated`
 
 # Bliss-rs Audio Analysis plugin
 
@@ -16,11 +16,11 @@ Files that have been analyzed previously are skipped (no way to force a re-analy
 
 Configure in the Navidrome UI (Settings → Plugins → navidrome-blissrs):
 
-| Key               | Description                                                              | Default   |
-|-------------------|--------------------------------------------------------------------------|-----------|
-|`schedule`         | When the plugin runs the analysis. Don't set frequency too low           |   `@24h`  |
-|`file_limit`       | Limit plugin to only analyze X files per-library per-run (0 = disabled)  |       0   |
-|`ignored_libraries`| Library IDs to ignore - comma-seperated (e.g. "2,4")                     |   empty   |
+| Key               | Description                                                              |    Default |
+|-------------------|--------------------------------------------------------------------------|------------|
+|`schedule`         | When the plugin runs the analysis. Don't set frequency too low           |`@every 10m`|
+|`file_limit`       | Limit plugin to only analyze X files per-library per-run (0 = disabled)  |        100 |
+|`ignored_libraries`| Library IDs to ignore - comma-seperated (e.g. "2,4")                     |      empty |
 
 
 ## Requirements
