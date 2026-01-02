@@ -82,10 +82,7 @@ fn analyze_and_store_if_missing(file_path: &str) {
 				Ok(s) => &s[..s.len().min(20)],
 				Err(_) => &hex::encode(&data)[..20], // hex, always safe
 			};
-			info!(
-				"Bliss analysis already present for {}, skipping... First 20 chars: {}",
-				file_path, preview
-			);
+			info!("      Bliss analysis already present, skipping... First 20 chars: {}", preview);
 			return;
 		}
 		Ok((_, false)) | Err(_) => { /* Key not found, fall through to analyze */ }
@@ -93,11 +90,11 @@ fn analyze_and_store_if_missing(file_path: &str) {
 
     let decoded_samples = match decode_pcm_samples(file_path) {
 		Ok(samples) => {
-			info!("    Was able to decode file {}: {} samples", file_path, samples.len());
+			info!("      Was able to decode file: {} samples", samples.len());
 			samples
 		},
 		Err(e) => {
-			error!("    Failed to decode audio for {}: {}", file_path, e);
+			error!("      Failed to decode audio: {}", e);
 			return;
 		}
 	};
@@ -189,7 +186,7 @@ fn process_dir_recursively(dir: &str, counter: &mut usize, limit: usize) {
             } else if path.is_file() {
                 if *counter < limit || limit==0 {
                     *counter += 1;
-                    println!("    Analyzing file {}: {}", *counter, path.display());
+                    info!("    File {}: {}", *counter, path.display());
                     analyze_and_store_if_missing(&path.to_string_lossy());
                 } else {
 					info!("    File limit of your config reach: {}", limit);
