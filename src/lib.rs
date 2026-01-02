@@ -234,7 +234,7 @@ fn inspect_libraries() {
 	
     for lib in &libraries {
         info!("----------------------------------------");
-        info!("Library: {} (ID: {})", lib.name, lib.id);
+        info!("Library {}: {}", lib.id, lib.name);
 		if ignored_libraries.contains(&lib.id) {
 			info!("  SKIPPED (as per your configuration)");
 		}else{
