@@ -1,7 +1,7 @@
 > [!WARNING]  
 > This plugin compiles and *should* run, but it requires WASI threads (basically multi-threaded wasm). 
 > Wazero has only experimental support for wasi-threads.
-> As a result, plugin crashes right now with error `instantiating module: module[env] not instantiated`
+> As a result, plugin crashes right now with error `instantiating module: module[env] not instantiated` because it is trying to Import Host memory from `env.memory`
 
 # Bliss-rs Audio Analysis plugin
 
